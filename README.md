@@ -23,4 +23,4 @@ optional arguments:
  python3 voo2dir.py
  </pre>
  # Problems
- if from any reason, the tool seems not responding, or showing errors, try to see if you filled the correct URL. Sometimes it happens, and could fix the issue you have. for exapmle : "http://", https://, slash(/) at the end of the URL. it might and could be the problem you have when enumerate/scan for directories.
+ if from any reason, the tool seems not responding, or showing errors, try to see if you filled the correct URL. Sometimes it happens, and could fix the issue you have. for exapmle : "http://", https://, slash(/) at the end of the URL. it might and could be the problem you have when enumerate/scan for directories. Remember to Use it only on CTF's/education only.
