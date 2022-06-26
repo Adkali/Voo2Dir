@@ -1,2 +1,23 @@
-# Voo2Dir
-A light brute-force directory tool for finding website hidden path/directory
+# Readme
+A light tool for enumerate hidden directories website.
+# Operating System Tested On
+~ Kali Linux.
+# Usage
+<pre> python3 voo2dir.py -Url [Host] -Word [Path/To/Dir/</pre]
+# Optional Args
+<pre>
+optional arguments:
+  -h, --help  show this help message and exit
+  -Url URL    Host URL, Make Sure You Insert It Properly.
+  -Word WORD  Wordlist Path.
+  -v V        voo2dir, Version 1.0 Made By Adkali With Love.
+  </pre>
+  # Install
+ <pre>
+ git clone https://github.com/Adkali/Voo2Dir.git
+ cd [Directory-Name]
+ pip install -r requirements.txt
+ python3 voo2dir.py
+ </pre>
+ # Problems
+ if from any reason, the tool seems not responding, or shwing errors, try to see if you fill the correct URL. Sometimes, it happens, and could fix the issue you have. for exapmle : "http", :https:, slash(/) at the end of the URL. it might and could be the problem you have when enumerate directories.
