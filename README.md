@@ -2,7 +2,7 @@
 # Readme
 ![voo](https://user-images.githubusercontent.com/90532971/175819097-1ae99d5d-1847-40fa-b408-7acf49602c46.png)<br>
 A light tool for enumerate hidden path/directories website.
-# Operating System Tested On!
+# Operating System Tested On
 ~ Kali Linux<br>
 ~ Windows 10
 # Usage
