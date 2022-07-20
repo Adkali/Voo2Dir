@@ -94,4 +94,4 @@ try:
 except FileNotFoundError as e:
     print("\nNo such file, try put all the path to the file.\n Example: */home/user/Desktop/file.txt")
 except KeyboardInterrupt as e:
-    print("\nUser stopped the script, exist...")
+    print("\nUser stopped the script, exit...")
