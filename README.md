@@ -33,7 +33,7 @@ optional arguments:
  4. python3 voo2dir.py
  </pre>
  # Updates 
- Fixed some bugs while trying to show the rersults in Windows.<br>
+ Fixed some bugs while trying to show the results on Windows.<br>
  Also, the flag '-ex' can now help you specified which extension do you want to search for.<br>
  Example of use: Python3 Voo2dir.py -Url http://site.com -Word -ex php 
  # Problems
