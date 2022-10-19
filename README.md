@@ -23,7 +23,8 @@ optional arguments:
   -Url URL    Host URL, Make Sure You Insert It Properly.
   -Word WORD  Wordlist Path.
   -v V        voo2dir, Version 1.0 Made By Adkali With Love.
-  </pre>
+  -ex EX      Extension flag for use (php,txt,rar,zip,html)
+</pre>
   
   # Install
  <pre>
