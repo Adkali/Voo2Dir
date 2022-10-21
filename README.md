@@ -1,4 +1,3 @@
-
 # Readme
 ![voo](https://user-images.githubusercontent.com/90532971/175819097-1ae99d5d-1847-40fa-b408-7acf49602c46.png)<br>
 A light tool for enumerate hidden path/directories website.
@@ -36,6 +35,6 @@ optional arguments:
  # Updates 
  Fixed some bugs while trying to show the results on Windows.<br>
  Also, the flag '-ex' can now help you specified which extension do you want to search for.<br>
- Example of use: Python3 Voo2dir.py -Url http://site.com -Word -ex php 
+ Example of use: Python3 Voo2dir.py -Url http://site.com -Word wordlist.txt -ex php 
  # Problems
  if from any reason, the tool seems not responding, or showing errors, try to see if you filled the correct URL. Sometimes it happens, and could fix the issue you have. for exapmle : "http://", https://, slash(/) at the end of the URL. it might and could be the problem you have when enumerate/scan for directories. Remember to Use it only on CTF's/education only.
