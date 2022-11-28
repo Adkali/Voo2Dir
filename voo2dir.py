@@ -11,6 +11,12 @@ Normal = "\033[0;0m"
 Red = "\033[0;31;40m"
 Yellow = "\033[1;33;40m"
 
+ # ------ RESULTS Template -------
+
+MAIN = "├──"
+TEE2 = "└──"
+SPACE_PREFIX = "   "
+
  # ------ CHECK FOR OPERATION SYSTEM FOR BETTER USAGE -------
 
 operating = platform.system()
@@ -80,18 +86,18 @@ try:
     with open(args.Word, "r") as directories:
         req = requests.get(f"{args.Url}")
         if req.status_code == 200:
-            print("\n[1] - > Successful HTTP request!")
+            print(f"\n\033[1;33m{MAIN}Successful HTTP request!\033[m")
             time.sleep(1)
-            print(f"[2] - > Path Loaded - > {args.Word}")
+            print(f"\n{Yellow}{SPACE_PREFIX}{TEE2}Path Loaded{Normal} - > {args.Word}")
             time.sleep(1)
         if args.ex:
             if ex == "rar" or ex == "php" or ex == "html" or ex == "zip" or ex == "txt":
                 for i in directories:
                     read = directories.read()
                     word = read.split("\n")
-                    print("[3] - > Words Loaded - >", len(word))
+                    print(f"{Yellow}{SPACE_PREFIX}{TEE2}Words Loaded{Normal} - >", len(word))
                     time.sleep(2)
-                    print(f"{Yellow}Extension:{Normal} {ex}\n")
+                    print(f"{Yellow}{SPACE_PREFIX}{TEE2}Extension:{Normal} {ex}\n")
                     time.sleep(1)
             else:
                 msg_err(err=f"{Red}[ERROR[!]]{Normal} ---- > Choose only between rar, php, html, zip, txt < ----- ")
@@ -100,16 +106,16 @@ try:
             for i in directories:
                 read = directories.read()
                 word = read.split("\n")
-                print(f"[3] - > Words Loaded - >", len(word))
+                print(f"{Yellow}{SPACE_PREFIX}{TEE2}Words Loaded{Normal} - >", len(word))
                 time.sleep(2)
-                print(f"{Yellow}Continue without any specified extension.....{Normal}\n")
+                print(f"{Yellow}{SPACE_PREFIX}{TEE2}Continue without any specified extension.....{Normal}\n")
                 time.sleep(3)
                 pass
 
     with open(args.Word, "r") as directories:
         req = requests.get(f"{args.Url}")
         if req.status_code == 200:
-            print("Starting Brute-Force Directories, Please Wait!\n")
+            print(f"{TEE2}Starting Brute-Force Directories, Please Wait!\n")
             time.sleep(0.1)
             if args.ex:
                 for i in directories:
