@@ -1,6 +1,8 @@
+# VOO2DIR
+<img src="https://img.shields.io/badge/Maintained%3F-Yes-96c40f"> <img src="https://img.shields.io/badge/Developed%20on-kali%20linux-blueviolet">
 # Readme
-![voo](https://user-images.githubusercontent.com/90532971/175819097-1ae99d5d-1847-40fa-b408-7acf49602c46.png)<br>
-A light tool for enumerate hidden path/directories website.
+![צילום מסך 2022-11-28 232140](https://user-images.githubusercontent.com/90532971/204383589-15191364-1131-47c0-8e8a-8ede9d686488.png)
+A light tool for enumerate hidden path/directories within a website.
 # Operating System Tested On
 ~ Kali Linux, Windows 10<br>Windows 10
 please let me know if you have experienced any problems when using it.<br>
