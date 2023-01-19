@@ -135,7 +135,7 @@ try:
             else:
                 for i in directories:
                     Newline = i.strip()
-                    req = requests.get(f"{args.Url}{Newline}.{ex}")
+                    req = requests.get(f"{args.Url}{Newline}")
                     if "Linux" in operating:
                         if req.status_code == 200:
                             print(f"{Sayan}The Path{Normal} - > {Red}{args.Url}{Newline}{Normal} {Sayan}Has Been Found!{Normal} -- > [!] Status: {req.status_code}")
