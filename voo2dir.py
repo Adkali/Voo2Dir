@@ -1,168 +1,169 @@
 import argparse
-import requests
-import sys
+import logging
+import random
 import time
-import progressbar
-import platform
-import os
+import requests
+import threading
+from pathlib import Path
+from typing import List
+from urllib.parse import urljoin
+from alive_progress import alive_bar
 
-Sayan = "\033[1;36;40m"
+#----------------------------------------------------------
+                                                           #
+# Made by Adkali                                           #
+# A Python-based directory brute-forcing tool              #
+# HTTP GET requests to each path                           #
+# The tool is designed for educational purposes only       #
+# allowing users to discover hidden directories            #
+# Using DEBUG/TIME                                         #
+#----------------------------------------------------------
+
+
+# COLOR TO BE DEFINED
 Normal = "\033[0;0m"
 Red = "\033[0;31;40m"
 Yellow = "\033[1;33;40m"
+Cyan = "\033[1;36;40m"
+Purple = "\033[0;35m"
 
- # ------ RESULTS Template -------
-
-MAIN = "├──"
-TEE2 = "└──"
-SPACE_PREFIX = "   "
-
- # ------ CHECK FOR OPERATION SYSTEM FOR BETTER USAGE -------
-
-operating = platform.system()
-if "Linux" in operating:
-    def BannerShow():
-        print(f'''
+# SIMPLE BANNER WHEN PROGRAM RUNS
+def BannerShow():
+    print(f'''
 
  \ \    / /       |__ \|  __ \(_)     
   \ \  / /__   ___   ) | |  | |_ _ __ 
    \ \/ / _ \ / _ \ / /| |  | | | '__|
     \  / (_) | (_) / /_| |__| | | |   
      \/ \___/ \___/____|_____/|_|_|
-                {Sayan}A{Normal}d{Yellow}k{Normal}a{Sayan}l{Normal}i, Version 1.1
-''')
-
-elif "Win" in operating:
-    def BannerShow():
-        print('''
-
- \ \    / /       |__ \|  __ \(_)     
-  \ \  / /__   ___   ) | |  | |_ _ __ 
-   \ \/ / _ \ / _ \ / /| |  | | | '__|
-    \  / (_) | (_) / /_| |__| | | |   
-     \/ \___/ \___/____|_____/|_|_|
-                Adkali, Version 1.1
+                {Cyan}A{Normal}d{Yellow}k{Normal}a{Cyan}l{Normal}i, Version 2.0
 ''')
 
 
 BannerShow()
 
+# MAKE LIKE A NICE TREE WHEN PROGRAMS RUNS
+MAIN = "├──"
+TEE2 = "└──"
+SPACE_PREFIX = "   "
 
-# ------- Manually error message for args -------
+# Define a list of user agent headers
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:54.0) Gecko/20100101 Firefox/54.0",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:40.0) Gecko/20100101 Firefox/40.0",
+    ]
+random_agent = random.choice(user_agents)
 
-def Parser_Err(msg):
-    print("Wrong Syntax! use --help flag for more help.")
-    print(f"{Yellow}Basic usage:{Normal} Python3 Voo2dir.py -Url [Example-Site] -Word [WordFile]\nUse '-help' for more information.")
-    exit()
+# Arguments error message
+def parser_error(msg):
+    raise ValueError("Check -h for usage please!")
 
-parser = argparse.ArgumentParser()
-parser.error = Parser_Err
-parser.add_argument('-Url', type=str, action="store", required=True, help='Host URL, Make Sure You Insert It Properly.')
-parser.add_argument('-Word', type=str, action="store",  required=True, help="Wordlist Path.")
-parser.add_argument('-ex', type=str, required=False, help='Add extension to the path [ php,zip,html,rar,txt]')
-args = parser.parse_args()
+# SET THE BASIC CONF FOR LOGGING
+logging.basicConfig(level=logging.INFO)
+# CREATE A LOGGER WITH __NAME__ FOR THE CURRENT MODULE
+logger = logging.getLogger(__name__)
 
-# ------- ERROR MESSAGE -------
+# Define the parser for using the code
+def setup_argparse():
+    parser = argparse.ArgumentParser(description="Voo2dir -  a directory brute-forcing tool for website path enumeration.")
+    parser.add_argument("-u", "--url", required=True, help="Host/Target.")
+    parser.add_argument("-w", "--wordlist", required=True, help="path to wordlist.")
+    parser.add_argument("-e", "--extensions", nargs="+", default=[], help="EXTENSIONS to be set like php txt rar")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose mode.")
+    parser.add_argument("-t", "--time", required=False, type=float, help="Set the timing for each request.")
+    parser.add_argument("-b", "--batch", required=True, type=int, help="Numbers requests are sent at once.")
+    parser.error = parser_error
+    args = parser.parse_args()
+
+    # Set up logging level based on verbosity
+    if args.verbose:
+        # SHOWS ALL PATH AND RESPONSE CODE.
+        logger.setLevel(logging.DEBUG)
+    else:
+        # SHOW INFO [ NO VERBOSE ]
+        logger.setLevel(logging.INFO)
+
+    # CHECK IS WORDLIST FILE EXIST/NOT EXIST USING PATH
+    if not Path(args.wordlist).is_file():
+        msg_err(f"No such file! Try again please {args.wordlist}")
+
+    if args.time is not None and args.time < 0:
+        msg_err("Delay time must be a positive number.")
+
+    return args
 
 def msg_err(err):
-    print(f"{err}")
+    logger.warning(err)
     exit(0)
 
-# ------- JUST A NICE LOADING BAR -------
-
-progress = progressbar.ProgressBar()
-for i in progress(range(80)):
-    time.sleep(0.01)
-
-# ------- ARGS TO BE DEFINED -------
-
-URL = args.Url
-Word = args.Word
-ex = args.ex
-
-# ------- CODE EXECUTION -------
-
-try:
-    with open(args.Word, "r") as directories:
-        req = requests.get(f"{args.Url}")
+def make_request(url: str, word: str, ext: str, delay_time: int):
+    # Make the request
+    if ext:
+        path = f"{word}.{ext}"
+    else:
+        path = word
+    try:
+        req = requests.get(urljoin(url, path), timeout=2, headers={"User-Agent": random_agent})
         if req.status_code == 200:
-            print(f"\n\033[1;33m{MAIN}Successful HTTP request!\033[m")
-            time.sleep(1)
-            print(f"\n{Yellow}{SPACE_PREFIX}{TEE2}Path Loaded{Normal} - > {args.Word}")
-            time.sleep(1)
-        if args.ex:
-            if ex == "rar" or ex == "php" or ex == "html" or ex == "zip" or ex == "txt":
-                for i in directories:
-                    read = directories.read()
-                    word = read.split("\n")
-                    print(f"{Yellow}{SPACE_PREFIX}{TEE2}Words Loaded{Normal} - >", len(word))
-                    time.sleep(2)
-                    print(f"{Yellow}{SPACE_PREFIX}{TEE2}Extension:{Normal} {ex}\n")
-                    time.sleep(1)
-            else:
-                msg_err(err=f"{Red}[ERROR[!]]{Normal} ---- > Choose only between rar, php, html, zip, txt < ----- ")
-                time.sleep(2)
+            logger.info(f"{Cyan}The path -> {urljoin(url, path)} has been found! Status: {req.status_code}{Normal}")
+
         else:
-            for i in directories:
-                read = directories.read()
-                word = read.split("\n")
-                print(f"{Yellow}{SPACE_PREFIX}{TEE2}Words Loaded{Normal} - >", len(word))
-                time.sleep(2)
-                print(f"{Yellow}{SPACE_PREFIX}{TEE2}Continue without any specified extension.....{Normal}\n")
-                time.sleep(3)
-                pass
+            logger.debug(f"{Red}Request to {urljoin(url, path)} failed with status code {req.status_code}{Normal}")
 
-    with open(args.Word, "r") as directories:
-        req = requests.get(f"{args.Url}")
-        if req.status_code == 200:
-            print(f"{TEE2}Starting Brute-Force Directories, Please Wait!\n")
-            time.sleep(0.1)
-            if args.ex:
-                for i in directories:
-                    Newline = i.strip()
-                    req = requests.get(f"{args.Url}{Newline}.{ex}")
-                    if "Linux" in operating:
-                        if req.status_code == 200:
-                            print(f"{Sayan}The Path{Normal} - > {Red}{args.Url}{Newline}.{ex}{Normal} {Sayan}Has Been Found!{Normal} -- > [!] Status: {req.status_code}")
-                        else:
-                            pass
-                    elif "Win" in operating:
-                        if req.status_code == 200:
-                            print(f"The Path - > {args.Url}{Newline}.{ex} Has Been Found! -- > [!] Status: {req.status_code}")
-                        else:
-                            pass
+        if delay_time:
+            time.sleep(delay_time)
 
-            else:
-                for i in directories:
-                    Newline = i.strip()
-                    req = requests.get(f"{args.Url}{Newline}")
-                    if "Linux" in operating:
-                        if req.status_code == 200:
-                            print(f"{Sayan}The Path{Normal} - > {Red}{args.Url}{Newline}{Normal} {Sayan}Has Been Found!{Normal} -- > [!] Status: {req.status_code}")
+    except requests.exceptions.RequestException as e:
+        logger.debug(f"{Red}Error sending request to {urljoin(url, path)}:\nINFO: {str(e)}{Normal}")
 
-                        else:
-                            pass
-                    elif "Win" in operating:
-                        if req.status_code == 200:
-                            print(f"The Path - > {args.Url}{Newline} Has Been Found! -- > [!] Status: {req.status_code}")
-                        else:
-                            pass
+# ------------------------------- MAIN FUNCTION -------------------------------
 
-        elif req.status_code == 404:
-            print("Error! Seems like The requested resource could not be found.")
-        elif req.status_code == 403:
-            print("403 - Forbidden.")
-        elif req.status_code == 503:
-            print("Service Unavailable!")
-        elif req.status_code == 504:
-            print("Timeout server error")
-        elif req.status_code == 408:
-            print("Time Out!")
-except FileNotFoundError as e:
-    print("\nNo such file, try put all the path to the file.\n Example: */home/user/Desktop/file.txt")
-except KeyboardInterrupt as e:
-    print("\nUser stopped the script, exit...")
-except requests.exceptions.InvalidURL:
-    print("Invalid URL! use 'http://' OR 'https://' with using '/' at the end. Example: http://10.0.5.6/")
-except requests.exceptions.ConnectionError:
-    print("Invalid URL! use 'http://' OR 'https://' with using '/' at the end. Example: http://10.0.5.6/")
+def main(url: str, wordlist: str, extensions: List[str], batch_size: int, delay_time: int):
+    logger.info(f"Starting Voo2dir for {url}")
+    time.sleep(1)
+    try:
+        with open(wordlist, "r") as f:
+            words = []
+            for line in f:
+                line = line.strip()
+                if line and "#" not in line:
+                    words.append(line)
+
+        logger.info(f"{SPACE_PREFIX}{TEE2}{Red}Loaded {len(words)} words from {wordlist}{Normal}")
+        time.sleep(1)
+        logger.info(f"{SPACE_PREFIX * 2}{TEE2}{Red}Extensions: {extensions or ['(No Extension loaded)']}{Normal}")
+        time.sleep(1)
+
+        # Use alive_bar to see the progress for nice waiting time and indication
+        with alive_bar(len(words) * len(extensions or [None])) as bar:
+            word_ext_pairs = [(word, ext) for word in words for ext in extensions or [None]]
+            for i in range(0, len(word_ext_pairs), batch_size):
+                batch = word_ext_pairs[i:i+batch_size]
+                if len(batch) > 10:
+                    logger.warning(f"{Purple}Batch limits: 10. Try again please.{Normal}")
+                    exit(0)
+                else:
+                    threads = [threading.Thread(target=make_request, args=(url, word, ext, delay_time)) for word, ext in batch]
+                    for thread in threads:
+                        thread.start()
+                    for thread in threads:
+                        thread.join()
+                        bar()
+
+    except FileNotFoundError:
+        msg_err(f"No such file! Try again please... {wordlist}")
+    except KeyboardInterrupt:
+        logger.info("User interrupted, exit...")
+        exit(0)
+    except Exception as e:
+        logger.error(f"Something went wrong!\nINFO:{str(e)}")
+
+if __name__ == "__main__":
+    try:
+        args_run = setup_argparse()
+        main(args_run.url, args_run.wordlist, args_run.extensions, batch_size=args_run.batch, delay_time=args_run.time)
+    except Exception as e:
+        print(e)
