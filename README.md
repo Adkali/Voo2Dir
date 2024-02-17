@@ -12,7 +12,7 @@ optional arguments:
   -h, --help -> <b>Show this help message and exit.</b>
   -u URL, --url URL -> <b>HOST/TARGET to scan.</b>
   -w WORDLIST, --wordlist WORDLIST -> <b>Path to wqordlist to be loaded.</b>
-  -e EXTENSIONS -> <b>Select extension to look for. example: php rar txt, etc.</b>
+  -e EXTENSIONS -> <b>Select extension to look for using space. example: -e php rar txt.</b>
   -v, --verbose -> <b>Enable verbose mode to see more.</b>
   -t TIME, --time TIME ->  <b>Set the timing for each request.</b>
   -b BATCH, --batch BATCH -> <b>How many directory paths are sent for enumeration at once.</b>
